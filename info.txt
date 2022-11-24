@@ -1,0 +1,22 @@
+Info
+
+tutorial: https://www.youtube.com/watch?v=hI-VgEaCMyQ&list=PL0Zuz27SZ-6M1J5I1w2-uZx36Qp6qhjKo&index=2
+
+github: https://github.com/radu-alin/redux-toolkit-basics-3.git
+
+app: posts
+
+
+github 
+…or create a new repository on the command line
+echo "# redux-toolkit-basics-3" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/radu-alin/redux-toolkit-basics-3.git
+git push -u origin main
+…or push an existing repository from the command line
+git remote add origin https://github.com/radu-alin/redux-toolkit-basics-3.git
+git branch -M main
+git push -u origin main
