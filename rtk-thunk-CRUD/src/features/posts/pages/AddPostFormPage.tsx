@@ -8,7 +8,7 @@ import { selectAllUsers } from '../../users/redux/usersSlice';
 
 import { STATUS, STATUS_OPTIONS } from '../../../types';
 
-export const AddPostForm = () => {
+export const AddPostFormPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 

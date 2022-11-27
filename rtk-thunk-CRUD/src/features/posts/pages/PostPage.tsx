@@ -3,11 +3,11 @@ import { useAppSelector } from '../../../hooks/redux-hooks';
 
 import { selectPostById } from '../redux/postsSlice';
 
-import { PostAuthor } from './PostAuthor';
-import { ReactionButtons } from './ReactionButtons';
-import { TimeAgo } from './TimeAgo';
+import { PostAuthor } from '../components';
+import { ReactionButtons } from '../components';
+import { TimeAgo } from '../components';
 
-export const SinglePostPage = () => {
+export const PostPage = () => {
   const { postId } = useParams();
 
   const post = useAppSelector((state) => selectPostById(state, Number(postId)));

@@ -9,7 +9,7 @@ import { deletePost_API, updatePost_API } from '../redux/postsActionCreators';
 
 import { STATUS, STATUS_OPTIONS } from '../../../types';
 
-export const EditPostForm = () => {
+export const EditPostFormPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();

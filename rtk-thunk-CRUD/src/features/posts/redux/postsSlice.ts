@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createSelector, PayloadAction } from '@reduxjs/toolkit';
 import { sub } from 'date-fns';
 
 import {
@@ -14,7 +14,6 @@ import { Post, NewReaction, Post_API } from '../types';
 import { STATUS, STATUS_OPTIONS } from '../../../types';
 
 import { defaultReactions } from './postsDataMock';
-
 interface PostsState {
   posts: Post[];
   status: STATUS_OPTIONS;
@@ -133,8 +132,14 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
+
 export const selectPostById = (state: RootState, postId: number) =>
   state.posts.posts.find((post) => post.id === postId);
+
+export const selectPostsByUser = createSelector(
+  [selectAllPosts, (state: RootState, userId: number) => userId],
+  (posts, userId) => posts.filter((post) => post.userId === userId)
+);
 
 export const { reactionAdded } = postsSlice.actions;
 

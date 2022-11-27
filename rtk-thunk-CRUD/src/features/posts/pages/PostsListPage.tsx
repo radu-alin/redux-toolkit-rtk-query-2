@@ -2,11 +2,11 @@ import { useAppSelector } from '../../../hooks/redux-hooks';
 
 import { selectAllPosts, getPostsStatus, getPostsError } from '../redux/postsSlice';
 
-import { PostItem } from './PostItem';
+import { PostItem } from '../components';
 
 import { STATUS } from '../../../types';
 
-export const PostsList = () => {
+export const PostsListPage = () => {
   const posts = useAppSelector(selectAllPosts);
   const postsStatus = useAppSelector(getPostsStatus);
   const postsError = useAppSelector(getPostsError);
