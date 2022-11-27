@@ -1,12 +1,8 @@
 import { useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../../hooks/redux-hooks';
 
-import {
-  selectAllPosts,
-  getPostsStatus,
-  getPostsError,
-  fetchPosts,
-} from '../redux/postsSlice';
+import { fetchPosts_API } from '../redux/postsCreateAction';
+import { selectAllPosts, getPostsStatus, getPostsError } from '../redux/postsSlice';
 
 import { PostItem } from './PostItem';
 
@@ -21,7 +17,7 @@ export const PostsList = () => {
 
   useEffect(() => {
     if (postsStatus === STATUS.IDLE) {
-      dispatch(fetchPosts());
+      dispatch(fetchPosts_API());
     }
   }, [postsStatus, dispatch]);
 

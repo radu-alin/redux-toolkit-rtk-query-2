@@ -17,6 +17,8 @@ export interface Post_API {
   userId: number;
   title: string;
   body: string;
+  date?: string;
+  reactions?: Reactions;
 }
 export interface Post extends Post_API {
   date: string;
