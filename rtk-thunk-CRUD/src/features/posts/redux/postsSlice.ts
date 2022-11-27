@@ -1,7 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { sub } from 'date-fns';
 
-import { fetchPosts_API, addNewPost_API } from './postsCreateAction';
+import {
+  fetchPosts_API,
+  addNewPost_API,
+  updatePost_API,
+  deletePost_API,
+} from './postsActionCreators';
 import { getSortedPostsHelper } from './helpers';
 
 import { RootState } from '../../../app/store';
@@ -64,7 +69,7 @@ const postsSlice = createSlice({
         state.status = STATUS.SUCCEDED;
         let min = 1;
         const loadedPosts = action.payload.map((post) => {
-          const newPost: Post = {
+          const computedPost: Post = {
             id: post.id,
             title: post.title,
             body: post.body,
@@ -75,7 +80,7 @@ const postsSlice = createSlice({
             },
           };
 
-          return newPost;
+          return computedPost;
         });
 
         state.posts = state.posts.concat(loadedPosts);
@@ -87,14 +92,39 @@ const postsSlice = createSlice({
       // case_addNewPost
       .addCase(addNewPost_API.fulfilled, (state, action: PayloadAction<Post_API>) => {
         const sortedPosts = getSortedPostsHelper(state.posts);
+        const newPost = {
+          ...action.payload,
+          id: sortedPosts[sortedPosts.length - 1].id + 1,
+          date: new Date().toISOString(),
+          reactions: {
+            ...defaultReactions,
+          },
+        } as Post;
 
-        action.payload.id = sortedPosts[sortedPosts.length - 1].id + 1;
+        state.posts.push(newPost);
+      })
+      // case_updatePost
+      .addCase(updatePost_API.fulfilled, (state, action: PayloadAction<Post>) => {
+        if (!action.payload?.id) {
+          console.log('Update could not complete');
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
         action.payload.date = new Date().toISOString();
-        action.payload.reactions = {
-          ...defaultReactions,
-        };
-
-        state.posts.push(action.payload as Post);
+        const posts = state.posts.filter((post) => post.id !== id);
+        state.posts = [...posts, action.payload];
+      })
+      // case_deletePost
+      .addCase(deletePost_API.fulfilled, (state, action: PayloadAction<any | Post>) => {
+        if (!action.payload?.id) {
+          console.log('Delete could not complete');
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        const posts = state.posts.filter((post) => post.id !== id);
+        state.posts = posts;
       });
   },
 });
@@ -103,6 +133,8 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
+export const selectPostById = (state: RootState, postId: number) =>
+  state.posts.posts.find((post) => post.id === postId);
 
 export const { reactionAdded } = postsSlice.actions;
 

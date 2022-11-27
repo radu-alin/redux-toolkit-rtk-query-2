@@ -1,6 +1,7 @@
 Info
 
 tutorial: https://www.youtube.com/watch?v=93CR_yURoII&list=PL0Zuz27SZ-6M1J5I1w2-uZx36Qp6qhjKo&index=3
+tutorial https://www.youtube.com/watch?v=-f1iAsrkyB0&list=PL0Zuz27SZ-6M1J5I1w2-uZx36Qp6qhjKo&index=4
 
 github: https://github.com/radu-alin/redux-toolkit-rtk-query-2.git
 

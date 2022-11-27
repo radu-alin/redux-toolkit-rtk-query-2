@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '../../../hooks/redux-hooks';
+import { useAppSelector } from '../../../hooks/redux-hooks';
 
-import { fetchPosts_API } from '../redux/postsCreateAction';
 import { selectAllPosts, getPostsStatus, getPostsError } from '../redux/postsSlice';
 
 import { PostItem } from './PostItem';
@@ -9,17 +7,9 @@ import { PostItem } from './PostItem';
 import { STATUS } from '../../../types';
 
 export const PostsList = () => {
-  const dispatch = useAppDispatch();
-
   const posts = useAppSelector(selectAllPosts);
   const postsStatus = useAppSelector(getPostsStatus);
   const postsError = useAppSelector(getPostsError);
-
-  useEffect(() => {
-    if (postsStatus === STATUS.IDLE) {
-      dispatch(fetchPosts_API());
-    }
-  }, [postsStatus, dispatch]);
 
   let content;
   if (postsStatus === STATUS.LOADING) {

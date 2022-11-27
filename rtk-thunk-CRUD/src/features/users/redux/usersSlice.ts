@@ -7,7 +7,7 @@ import { User } from '../types/index';
 
 const USERS_URL = 'https://jsonplaceholder.typicode.com/users';
 
-export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
+export const fetchUsers_API = createAsyncThunk('users/fetchUsers', async () => {
   const { data } = await axios.get(USERS_URL);
   return data as User[];
 });
@@ -19,7 +19,7 @@ const usersSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchUsers.fulfilled, (_, action) => {
+    builder.addCase(fetchUsers_API.fulfilled, (_, action) => {
       return action.payload;
     });
   },

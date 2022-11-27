@@ -1,14 +1,16 @@
 import { useState, ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useAppSelector, useAppDispatch } from '../../../hooks/redux-hooks';
 
-import { addNewPost_API } from '../redux/postsCreateAction';
+import { addNewPost_API } from '../redux/postsActionCreators';
 import { selectAllUsers } from '../../users/redux/usersSlice';
 
 import { STATUS, STATUS_OPTIONS } from '../../../types';
 
 export const AddPostForm = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -37,6 +39,7 @@ export const AddPostForm = () => {
       setTitle('');
       setBody('');
       setUserId(0);
+      navigate('/');
     } catch (err) {
       console.error('Failed to save the post', err);
     } finally {
