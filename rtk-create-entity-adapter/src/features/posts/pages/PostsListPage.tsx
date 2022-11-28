@@ -1,13 +1,13 @@
 import { useAppSelector } from '../../../hooks/redux-hooks';
 
-import { selectAllPosts, getPostsStatus, getPostsError } from '../redux/postsSlice';
+import { selectPostIds, getPostsStatus, getPostsError } from '../redux/postsSlice';
 
 import { PostItem } from '../components';
 
 import { STATUS } from '../../../types';
 
 export const PostsListPage = () => {
-  const posts = useAppSelector(selectAllPosts);
+  const orderedPostsIds = useAppSelector(selectPostIds);
   const postsStatus = useAppSelector(getPostsStatus);
   const postsError = useAppSelector(getPostsError);
 
@@ -15,8 +15,7 @@ export const PostsListPage = () => {
   if (postsStatus === STATUS.LOADING) {
     content = <p>"Loading..."</p>;
   } else if (postsStatus === STATUS.SUCCEDED) {
-    const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date));
-    content = orderedPosts.map((post) => <PostItem key={post.id} post={post} />);
+    content = orderedPostsIds.map((postId) => <PostItem key={postId} postId={postId} />);
   } else if (postsStatus === STATUS.FAILED) {
     content = <p>{postsError}</p>;
   }

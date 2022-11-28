@@ -14,8 +14,8 @@ export const fetchPosts_API = createAsyncThunk('posts/fetchPosts', async () => {
 export const addNewPost_API = createAsyncThunk(
   'posts/addNewPost',
   async (initialPost: NewPost) => {
-    console.log('%c-> developmentConsole: initialPost= ', 'color:#77dcfd', initialPost);
     const response = await axios.post(POSTS_URL, initialPost);
+
     return response.data;
   }
 );

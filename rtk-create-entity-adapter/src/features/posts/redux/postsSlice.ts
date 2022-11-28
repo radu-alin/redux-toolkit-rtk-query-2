@@ -1,4 +1,12 @@
-import { createSlice, createSelector, PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from './../../../app/store';
+import {
+  createSlice,
+  createSelector,
+  createEntityAdapter,
+  PayloadAction,
+  Dictionary,
+  EntityId,
+} from '@reduxjs/toolkit';
 import { sub } from 'date-fns';
 
 import {
@@ -7,32 +15,41 @@ import {
   updatePost_API,
   deletePost_API,
 } from './postsActionCreators';
-import { getSortedPostsHelper } from './helpers';
 
-import { RootState } from '../../../app/store';
 import { Post, NewReaction, Post_API } from '../types';
 import { STATUS, STATUS_OPTIONS } from '../../../types';
 
 import { defaultReactions } from './postsDataMock';
 interface PostsState {
-  posts: Post[];
+  ids: EntityId[];
+  entities: Dictionary<Post>;
   status: STATUS_OPTIONS;
   error: null | string;
 }
 
-const initialState: PostsState = {
-  posts: [],
+const postsAdapter = createEntityAdapter<Post>({
+  sortComparer: (a, b) => b.date.localeCompare(a.date),
+});
+
+const initialState: PostsState = postsAdapter.getInitialState({
   status: STATUS.IDLE,
   error: null,
-};
+});
 
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
     reactionAdded: (state, action: PayloadAction<NewReaction>) => {
+      postsAdapter.getInitialState();
+      console.log(
+        '%c-> developmentConsole: postsAdapter.getInitialState();= ',
+        'color:#77dcfd',
+        state
+      );
       const { postId, reaction } = action.payload;
-      const existingPost = state.posts.find((post) => post.id === postId) as Post;
+      const getPostId = String(postId);
+      const existingPost = state.entities[getPostId] as Post;
       if (existingPost) {
         existingPost.reactions[reaction]++;
       }
@@ -62,7 +79,7 @@ const postsSlice = createSlice({
           return computedPost;
         });
 
-        state.posts = state.posts.concat(loadedPosts);
+        postsAdapter.upsertMany(state, loadedPosts);
       })
       .addCase(fetchPosts_API.rejected, (state, action) => {
         state.status = STATUS.FAILED;
@@ -70,17 +87,18 @@ const postsSlice = createSlice({
       })
       // case_addNewPost
       .addCase(addNewPost_API.fulfilled, (state, action: PayloadAction<Post_API>) => {
-        const sortedPosts = getSortedPostsHelper(state.posts);
+        const newPostId = Number(state.ids[state.ids.length - 1]) + 1;
         const newPost = {
           ...action.payload,
-          id: sortedPosts[sortedPosts.length - 1].id + 1,
           date: new Date().toISOString(),
+          id: newPostId,
           reactions: {
             ...defaultReactions,
           },
         } as Post;
 
-        state.posts.push(newPost);
+        console.log('%c-> developmentConsole: newPost= ', 'color:#77dcfd', newPost);
+        postsAdapter.addOne(state, newPost);
       })
       // case_updatePost
       .addCase(updatePost_API.fulfilled, (state, action: PayloadAction<Post>) => {
@@ -89,10 +107,9 @@ const postsSlice = createSlice({
           console.log(action.payload);
           return;
         }
-        const { id } = action.payload;
         action.payload.date = new Date().toISOString();
-        const posts = state.posts.filter((post) => post.id !== id);
-        state.posts = [...posts, action.payload];
+
+        postsAdapter.upsertOne(state, action.payload);
       })
       // case_deletePost
       .addCase(deletePost_API.fulfilled, (state, action: PayloadAction<any | Post>) => {
@@ -101,20 +118,22 @@ const postsSlice = createSlice({
           console.log(action.payload);
           return;
         }
-        const { id } = action.payload;
-        const posts = state.posts.filter((post) => post.id !== id);
-        state.posts = posts;
+
+        postsAdapter.removeOne(state, action.payload.id);
       });
   },
 });
 
-// custom selectors
-export const selectAllPosts = (state: RootState) => state.posts.posts;
+//getSelectors creates these selectors and we rename them with aliases using destructuring
+export const {
+  selectAll: selectAllPosts,
+  selectById: selectPostById,
+  selectIds: selectPostIds,
+  // Pass in a selector that returns the posts slice of state
+} = postsAdapter.getSelectors((state: RootState) => state.posts);
+
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
-
-export const selectPostById = (state: RootState, postId: number) =>
-  state.posts.posts.find((post) => post.id === postId);
 
 export const selectPostsByUser = createSelector(
   [selectAllPosts, (state: RootState, userId: number) => userId],
