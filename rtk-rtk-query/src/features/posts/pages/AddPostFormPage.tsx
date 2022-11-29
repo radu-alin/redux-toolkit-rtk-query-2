@@ -1,21 +1,18 @@
 import { useState, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useAppSelector, useAppDispatch } from '../../../hooks/redux-hooks';
+import { useAppSelector } from '../../../hooks/redux-hooks';
 
-import { addNewPost_API } from '../redux/postsActionCreators';
+import { useAddNewPostMutation } from '../redux/postsSlice';
 import { selectAllUsers } from '../../users/redux/usersSlice';
 
-import { STATUS, STATUS_OPTIONS } from '../../../types';
-
 export const AddPostFormPage = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [addNewPost, { isLoading }] = useAddNewPostMutation();
 
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [userId, setUserId] = useState<number>(0);
-  const [addRequestStatus, setAddRequestStatus] = useState<STATUS_OPTIONS>(STATUS.IDLE);
 
   const users = useAppSelector(selectAllUsers);
 
@@ -25,16 +22,14 @@ export const AddPostFormPage = () => {
   const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) =>
     setUserId(Number(e.target.value));
 
-  const isValidForm =
-    [userId, title, body].every(Boolean) && addRequestStatus === STATUS.IDLE;
+  const isValidForm = [userId, title, body].every(Boolean) && isLoading;
 
-  const onSavePostClicked = () => {
+  const onSavePostClicked = async () => {
     if (!isValidForm) {
       return;
     }
     try {
-      setAddRequestStatus(STATUS.PENDING);
-      userId && dispatch(addNewPost_API({ title, body, userId })).unwrap();
+      await addNewPost({ title, body, userId }).unwrap();
 
       setTitle('');
       setBody('');
@@ -42,8 +37,6 @@ export const AddPostFormPage = () => {
       navigate('/');
     } catch (err) {
       console.error('Failed to save the post', err);
-    } finally {
-      setAddRequestStatus(STATUS.IDLE);
     }
   };
 

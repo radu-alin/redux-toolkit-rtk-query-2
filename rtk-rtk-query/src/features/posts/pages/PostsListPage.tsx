@@ -1,23 +1,22 @@
 import { useAppSelector } from '../../../hooks/redux-hooks';
 
-import { selectPostIds, getPostsStatus, getPostsError } from '../redux/postsSlice';
+import { selectPostIds } from '../redux/postsSlice';
+import { useGetPostsQuery } from '../redux/postsSlice';
 
 import { PostItem } from '../components';
 
-import { STATUS } from '../../../types';
-
 export const PostsListPage = () => {
+  const { isLoading, isSuccess, isError } = useGetPostsQuery();
+
   const orderedPostsIds = useAppSelector(selectPostIds);
-  const postsStatus = useAppSelector(getPostsStatus);
-  const postsError = useAppSelector(getPostsError);
 
   let content;
-  if (postsStatus === STATUS.LOADING) {
+  if (isLoading) {
     content = <p>"Loading..."</p>;
-  } else if (postsStatus === STATUS.SUCCEDED) {
+  } else if (isSuccess) {
     content = orderedPostsIds.map((postId) => <PostItem key={postId} postId={postId} />);
-  } else if (postsStatus === STATUS.FAILED) {
-    content = <p>{postsError}</p>;
+  } else if (isError) {
+    content = <p>'Something went wrong.'</p>;
   }
 
   return (

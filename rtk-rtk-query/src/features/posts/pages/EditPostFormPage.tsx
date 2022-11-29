@@ -1,18 +1,19 @@
 import { useState, ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { useAppSelector, useAppDispatch } from '../../../hooks/redux-hooks';
+import { useAppSelector } from '../../../hooks/redux-hooks';
 
 import { selectPostById } from '../redux/postsSlice';
-import { selectAllUsers } from '../../users/redux/usersSlice';
-import { deletePost_API, updatePost_API } from '../redux/postsActionCreators';
+import { useUpdatePostMutation, useDeletePostMutation } from '../redux/postsSlice';
 
-import { STATUS, STATUS_OPTIONS } from '../../../types';
+import { selectAllUsers } from '../../users/redux/usersSlice';
 
 export const EditPostFormPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+
+  const [updatePost, { isLoading }] = useUpdatePostMutation();
+  const [deletePost] = useDeletePostMutation();
 
   const post = useAppSelector((state) => selectPostById(state, Number(postId)));
   const users = useAppSelector(selectAllUsers);
@@ -20,8 +21,6 @@ export const EditPostFormPage = () => {
   const [title, setTitle] = useState(post?.title);
   const [body, setBody] = useState(post?.body);
   const [userId, setUserId] = useState(post?.userId);
-  const [requestStatus, setRequestStatus] = useState<STATUS_OPTIONS>(STATUS.IDLE);
-  console.log('%c-> developmentConsole: requestStatus= ', 'color:#77dcfd', requestStatus);
 
   if (!post) {
     return (
@@ -37,40 +36,27 @@ export const EditPostFormPage = () => {
   const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) =>
     setUserId(Number(e.target.value));
 
-  const isValidForm =
-    [title, body, userId].every(Boolean) && requestStatus === STATUS.IDLE;
+  const isValidForm = [title, body, userId].every(Boolean) && isLoading;
 
   const infoExist = title && body && userId;
 
-  const onSavePostClicked = () => {
+  const onSavePostClicked = async () => {
     if (isValidForm && infoExist) {
-      setRequestStatus(STATUS.PENDING);
       try {
-        dispatch(
-          updatePost_API({
-            ...post,
-            userId,
-            title,
-            body,
-          })
-        ).unwrap();
-
+        await updatePost({ id: post.id, title, body, userId }).unwrap();
         setTitle('');
         setBody('');
         setUserId(0);
         navigate(`/post/${postId}`);
       } catch (err) {
         console.error('Failed to save the post', err);
-      } finally {
-        setRequestStatus(STATUS.IDLE);
       }
     }
   };
 
-  const onDeletePostClicked = () => {
+  const onDeletePostClicked = async () => {
     try {
-      setRequestStatus(STATUS.PENDING);
-      dispatch(deletePost_API(post)).unwrap();
+      await deletePost({ id: post.id }).unwrap();
 
       setTitle('');
       setBody('');
@@ -78,8 +64,6 @@ export const EditPostFormPage = () => {
       navigate('/');
     } catch (err) {
       console.error('Failed to delete the post', err);
-    } finally {
-      setRequestStatus(STATUS.IDLE);
     }
   };
 

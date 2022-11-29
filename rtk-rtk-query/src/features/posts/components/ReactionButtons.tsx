@@ -1,5 +1,4 @@
-import { useAppDispatch } from '../../../hooks/redux-hooks';
-import { reactionAdded } from '../redux/postsSlice';
+import { useAddReactionMutation } from '../redux/postsSlice';
 import { Post, Reactions_Options } from '../types';
 
 const reactionEmoji = {
@@ -11,7 +10,7 @@ const reactionEmoji = {
 };
 
 export const ReactionButtons = ({ post }: { post: Post }) => {
-  const dispatch = useAppDispatch();
+  const [addReaction] = useAddReactionMutation();
 
   const reactionEmojiArray = Object.keys(reactionEmoji) as Reactions_Options[];
 
@@ -21,7 +20,13 @@ export const ReactionButtons = ({ post }: { post: Post }) => {
         key={item}
         type="button"
         className="reactionButton"
-        onClick={() => dispatch(reactionAdded({ postId: post.id, reaction: item }))}
+        onClick={() => {
+          const newValue = post.reactions[item] + 1;
+          addReaction({
+            postId: post.id,
+            reactions: { ...post.reactions, [item]: newValue },
+          });
+        }}
       >
         {reactionEmoji[item]} {post.reactions[item]}
       </button>
